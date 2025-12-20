@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/gpio.h"
+
+#define LED_PIN  GPIO_NUM_10        //Choose a good LED pin to use
+#define DELAY_LED 1000
+#define DELAY_PRINT 1000
+
+void led_task()
+{
+    int counter = 0;
+    gpio_reset_pin(LED_PIN);
+    gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
+
+    while (true)
+    {
+        printf("LED Task: counter = %d\n", counter);
+        gpio_set_level(LED_PIN, (counter % 2) ? 0 : 1);
+        counter++;
+        vTaskDelay(DELAY_LED / portTICK_PERIOD_MS);
+    }
+}
+void print_task()
+{
+    while (true)
+    {
+        printf("Repeating Message \n");
+        vTaskDelay(DELAY_PRINT / portTICK_PERIOD_MS);
+        }
+    }
+
+
+void app_main(void)
+{
+    xTaskCreatePinnedToCore(led_task, "LED_Task", 2048, NULL, 5, NULL, 1);
+    xTaskCreatePinnedToCore(print_task, "PRINT_Task", 2048, NULL, 5, NULL, 0);
+}
