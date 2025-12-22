@@ -1,0 +1,41 @@
+//Activity 3
+#include <stdio.h>
+#include "freertos/FreeRTOS.h"
+#include "driver/gpio.h"
+
+#define LED_PIN     10      //Choose a good LED pin to use
+#define DELAY_MS 500
+
+void led_task(void *pvParameter)
+{
+    int counter = 0;
+    gpio_reset_pin(LED_PIN);
+    gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
+
+    while (1)
+    {
+        printf("LED Task: counter = %d\n", counter);
+        if (counter % 2 == 0) {
+            gpio_set_level(LED_PIN, 1);
+        } else {
+            gpio_set_level(LED_PIN, 0);
+        }
+        counter++;
+        vTaskDelay(1);
+    }
+}
+
+void print_task(void *pvParameter)
+{
+    while (1)
+    {
+        printf("Print Task: Hello from Core 0 \n");
+    }
+}
+
+void app_main(void)
+{
+    xTaskCreatePinnedToCore(led_task, "LED_Task", 2048, NULL, 3, NULL, 0);
+    xTaskCreatePinnedToCore(print_task, "Print_Task", 2048, NULL, 10, NULL, 0);
+}
+

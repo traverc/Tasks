@@ -1,3 +1,4 @@
+//Activity 6
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -14,7 +15,7 @@ void task1()
 
     while (true)
     {
-        printf("Task1: counter = %d\n", counter);
+        printf("Task1 counting up: counter = %d\n", counter);
         counter++;
         vTaskDelay(DELAY_T1 / portTICK_PERIOD_MS);
     }
@@ -25,7 +26,7 @@ void task2()
 
     while (true)
     {
-        printf("Task1: counter = %d\n", counter);
+        printf("Task2 counting down: counter = %d\n", counter);
         counter--;
         vTaskDelay(DELAY_T2 / portTICK_PERIOD_MS);
     }
