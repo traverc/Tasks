@@ -1,40 +1,79 @@
-//Activity 6
+//Activit 8 Challenge - Mini Clock
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+#include "freertos/timers.h"
 #include "driver/gpio.h"
 
-#define LED_PIN  GPIO_NUM_10        //Choose a good LED pin to use
-#define DELAY_T1 1000
-#define DELAY_T2 1500
+#define LED_PIN            10
+#define TIMER_PERIOD_MS    1000
+#define STOP_TIME_MS       60000
+#define RESTART_TIME_MS    2000
 
+TimerHandle_t clock_timer;
+TimerHandle_t control_timer;
 
-void task1()
+int seconds = 0;
+
+// LED timer callback
+void clock_timer_callback(TimerHandle_t xTimer)
 {
-    int counter = 0;
+    static int led_state = 0;
+    led_state = !led_state;
+    gpio_set_level(LED_PIN, led_state);
 
-    while (true)
-    {
-        printf("Task1 counting up: counter = %d\n", counter);
-        counter++;
-        vTaskDelay(DELAY_T1 / portTICK_PERIOD_MS);
+    seconds++;
+
+    printf("Operating time: %d", seconds);
+    if (seconds == 1){
+        printf(" second\n");
+    } else {
+        printf(" seconds\n");
     }
-}
-void task2()
-{
-    int counter = 0;
 
-    while (true)
-    {
-        printf("Task2 counting down: counter = %d\n", counter);
-        counter--;
-        vTaskDelay(DELAY_T2 / portTICK_PERIOD_MS);
+}
+
+// Control timer callback
+void control_timer_callback(TimerHandle_t xTimer)
+{
+    static int state = 0;
+
+    if (state == 0) {
+        printf("Stopping clock timer...\n");
+        xTimerStop(clock_timer, 0);
+
+        seconds = 0;
+
+        // Change control timer to restart delay
+        xTimerChangePeriod(control_timer, pdMS_TO_TICKS(RESTART_TIME_MS), 0);
+        state = 1;
+    } else {
+        printf("Restarting clock timer...\n");
+        xTimerStart(clock_timer, 0);
+
+        xTimerChangePeriod(control_timer, pdMS_TO_TICKS(STOP_TIME_MS), 0);
+
+        state = 0;
     }
 }
 
 void app_main(void)
 {
+    gpio_reset_pin(LED_PIN);
+    gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
 
-    xTaskCreatePinnedToCore(task1, "First_Task", 2048, NULL, 5, NULL, 1);
-    xTaskCreatePinnedToCore(task2, "Second_Task", 2048, NULL, 3, NULL, 0);
+    // Create LED timer (periodic)
+    clock_timer = xTimerCreate("Clock_Timer", pdMS_TO_TICKS(TIMER_PERIOD_MS), pdTRUE, NULL, clock_timer_callback);
+
+    // Create control timer (periodic)
+    control_timer = xTimerCreate("Control_Timer", pdMS_TO_TICKS(STOP_TIME_MS), pdTRUE, NULL, control_timer_callback);
+
+    if (clock_timer && control_timer){
+        printf("Starting clock timer...\n");
+        xTimerStart(clock_timer, 0);
+
+        printf("Starting control timer...\n");
+        xTimerStart(control_timer, 0);
+    } else {
+        printf("Timer creation failed!\n");
+    }
 }
