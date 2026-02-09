@@ -1,4 +1,4 @@
-//Activity 3
+//Queue example, pulled from esp-idf example: "basic_freertos_smp_usage".
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "esp_log.h"  

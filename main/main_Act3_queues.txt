@@ -2,15 +2,13 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "esp_log.h"  
-//#define PROMPT_STR CONFIG_IDF_TARGET
 #define TASK_PRIO_3         3
-#define TASK_PRIO_2         2
 #define COMP_LOOP_PERIOD    5000
 #define QUEUE_CREATE_ERR_STR              "queue creation failed"
 // For the Queue example
 static QueueHandle_t msg_queue; //Define a handle for Queue
 static const uint8_t msg_queue_len = 40; //Set a max length for Queue
-static volatile bool timed_out; //May not need this
+static volatile bool timed_out; 
 const static char *TAG = "queue example"; //May not need this
 
 static void print_q_msg(void *arg)
