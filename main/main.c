@@ -1,7 +1,6 @@
 //Activity 3
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
-//#include "esp_log.h"  
 #define TASK_PRIO_3         3
 #define COMP_LOOP_PERIOD    5000
 #define QUEUE_CREATE_ERR_STR    "queue creation failed"
@@ -13,7 +12,7 @@ static volatile bool timed_out;
 static void print_q_msg(void *arg)
 {
     int data;  // data type should be same as queue item type
-    int to_wait_ms = 1000;  // the maximal blocking waiting time in milliseconds
+    int to_wait_ms = 10000;  // the maximal blocking waiting time in milliseconds
     const TickType_t xTicksToWait = pdMS_TO_TICKS(to_wait_ms);
 
     while (!timed_out) {
@@ -38,7 +37,7 @@ static void send_q_msg(void *arg)
         sent_num++;
 
         // send an item for every 250ms
-        vTaskDelay(250 / portTICK_PERIOD_MS);
+        vTaskDelay(10 / portTICK_PERIOD_MS);
     }
         vTaskDelete(NULL);
 }
